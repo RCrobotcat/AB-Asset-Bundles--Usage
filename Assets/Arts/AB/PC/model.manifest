@@ -1,0 +1,40 @@
+ManifestFileVersion: 0
+CRC: 1207474204
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: de2534f3c829b124eea45572a8cc7e6e
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 35454ccdc257e4a32004d3b6858bebf5
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: de2534f3c829b124eea45572a8cc7e6e
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 135
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Arts/Prefab/TestCylinder.prefab
+- Assets/Arts/Prefab/TestSphere.prefab
+- Assets/Arts/Prefab/TestCube.prefab
+Dependencies: []

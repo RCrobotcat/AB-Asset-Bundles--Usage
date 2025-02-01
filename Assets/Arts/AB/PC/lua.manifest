@@ -1,0 +1,22 @@
+ManifestFileVersion: 0
+CRC: 3081970480
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 14135480d4d59e6ac7b3aac53248012b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 5ad585dd02dfb5016c0dad519eab8f49
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 14135480d4d59e6ac7b3aac53248012b
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Arts/Lua/LuaTest.lua.txt
+- Assets/Arts/Lua/LuaTest2.lua.txt
+- Assets/Arts/Lua/LuaTest3.lua.txt
+Dependencies: []
