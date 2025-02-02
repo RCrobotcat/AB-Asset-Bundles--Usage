@@ -3,6 +3,7 @@ using System.Net;
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class ABUpdateManager : MonoBehaviour
 {
@@ -27,6 +28,7 @@ public class ABUpdateManager : MonoBehaviour
     }
 
     private Dictionary<string, ABInfo> remoteABInfos = new Dictionary<string, ABInfo>(); // 存储AB包信息
+    private List<string> downloadList = new List<string>(); // 存储需要下载的AB包(存储AB包名)
 
     /// <summary>
     /// 下载AB包比对文件
@@ -48,10 +50,59 @@ public class ABUpdateManager : MonoBehaviour
 
         Debug.Log("Download AB Comparison File Success!");
     }
+
+    /// <summary>
+    /// 下载AB包文件
+    /// </summary>
+    public async void DownLoadABFile(Action<bool> overCallBack, Action<int, int> updateProgress)
+    {
+        foreach (string name in remoteABInfos.Keys)
+        {
+            downloadList.Add(name);
+        }
+
+        // 由于多线程无法读取Unity主进程的资源, 所以需要将下载的AB包存储到本地路径
+        string localPath = Application.persistentDataPath + "/";
+
+        bool isOver = false;
+        List<string> tempList = new List<string>();
+
+        int reDownloadMaxNum = 5; // 最大重试次数
+        int downloadOverNum = 0;
+        int downloadMaxNum = downloadList.Count;
+        while (downloadList.Count > 0 && reDownloadMaxNum > 0)
+        {
+            for (int i = 0; i < downloadList.Count; i++)
+            {
+
+                await Task.Run(() =>
+                {
+                    isOver = DownloadFile(downloadList[i], localPath + downloadList[i]);
+                });
+
+                if (isOver)
+                {
+                    // Debug.Log("Download Progress: " + ++downloadOverNum + "/" + downloadList.Count);
+                    // Debug.Log("Download AB File " + downloadList[i] + " Success!");
+
+                    updateProgress(++downloadOverNum, downloadMaxNum);
+                    tempList.Add(downloadList[i]);
+                }
+            }
+
+            for (int i = 0; i < tempList.Count; i++)
+                downloadList.Remove(tempList[i]);
+
+            reDownloadMaxNum--;
+        }
+
+        overCallBack(downloadList.Count == 0);
+    }
+
     /// <summary>
     /// 从FTP服务器下载文件
     /// </summary>
-    void DownloadFile(string fileName, string localPath)
+    bool DownloadFile(string fileName, string localPath)
     {
         try
         {
@@ -85,11 +136,13 @@ public class ABUpdateManager : MonoBehaviour
                 downloadStream.Close();
             }
 
-            Debug.Log(fileName + " Download File Success!");
+            // Debug.Log(fileName + " Download File Success!");
+            return true;
         }
         catch (Exception e)
         {
             Debug.LogError(fileName + " Download File Failed! Exception: " + e.Message);
+            return false;
         }
     }
 
