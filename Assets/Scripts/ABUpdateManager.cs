@@ -33,11 +33,33 @@ public class ABUpdateManager : MonoBehaviour
     /// <summary>
     /// 下载AB包比对文件
     /// </summary>
-    public void DownloadABCompareFile()
+    public async void DownloadABCompareFile(Action<bool> OverCallBack)
     {
         Debug.Log(Application.persistentDataPath); // 本地可读可写路径
-        DownloadFile("ABComparisonInfo.txt", Application.persistentDataPath + "/ABComparisonInfo.txt");
 
+        bool isOver = false;
+        int reDownloadMaxNum = 5; // 最大重试次数
+
+        string path = Application.persistentDataPath + "/ABComparisonInfo.txt";
+        while (!isOver && reDownloadMaxNum > 0)
+        {
+            await Task.Run(() =>
+            {
+                isOver = DownloadFile("ABComparisonInfo.txt", path);
+            });
+
+            reDownloadMaxNum--;
+        }
+
+        OverCallBack?.Invoke(isOver);
+
+        /*if (isOver)
+        {
+            GetRemoteABCompareInfo();
+        }*/
+    }
+    public void GetRemoteABCompareInfo()
+    {
         string info = File.ReadAllText(Application.persistentDataPath + "/ABComparisonInfo.txt");
         string[] strs = info.Split('\n');
         string[] infos = null;
