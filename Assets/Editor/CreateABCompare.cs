@@ -43,7 +43,7 @@ public class CreateABCompare
     /// 获取文件的MD5编码
     /// </summary>
     /// <param name="filePath"></param>
-    private static string GetMD5(string filePath)
+    public static string GetMD5(string filePath)
     {
         using (FileStream file = new FileStream(filePath, FileMode.Open))  // 将文件以流的形式打开
         {
