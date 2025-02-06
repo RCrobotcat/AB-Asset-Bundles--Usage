@@ -4,6 +4,7 @@ public class Main : MonoBehaviour
 {
     void Start()
     {
+        Debug.Log(Application.persistentDataPath);
         ABUpdateManager.Instance.CheckUpdate((isOver) =>
         {
             if (isOver)

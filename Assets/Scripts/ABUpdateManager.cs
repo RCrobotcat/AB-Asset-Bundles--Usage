@@ -57,7 +57,47 @@ public class ABUpdateManager : MonoBehaviour
                     {
                         updateInfoCB("Get Local AB Comparison Info Success!");
 
+                        updateInfoCB("Starting Comparison...");
                         // 对比AB包信息 => 下载需要更新的AB包
+                        foreach (string abName in remoteABInfos.Keys)
+                        {
+                            // 本地没有该远程AB包 需要下载
+                            if (!localABInfos.ContainsKey(abName))
+                                downloadList.Add(abName);
+                            else
+                            {
+                                // 本地AB包MD5码与远程AB包MD5码不一致 需要更新
+                                if (localABInfos[abName].MD5Code != remoteABInfos[abName].MD5Code)
+                                    downloadList.Add(abName);
+
+                                localABInfos.Remove(abName);
+                            }
+                        }
+                        updateInfoCB("Comparison Over!");
+
+                        updateInfoCB("Starting delete redundant local ABs...");
+                        // 移除本地多余的AB包
+                        foreach (string abName in localABInfos.Keys)
+                        {
+                            if (File.Exists(Application.persistentDataPath + "/" + abName))
+                                File.Delete(Application.persistentDataPath + "/" + abName);
+                        }
+                        updateInfoCB("Delete redundant local ABs Over!");
+
+                        updateInfoCB("Starting Download ABs...");
+                        // 下载新的AB包
+                        DownLoadABFile((isOver) =>
+                        {
+                            if (isOver) // 下载成功之后 更新本地的AB包对比文件
+                            {
+                                // 把远端的AB包信息保存到本地
+                                File.WriteAllText(Application.persistentDataPath + "/ABComparisonInfo.txt", remoteInfo);
+                                updateInfoCB("AB Comparison File is up-to-date!");
+                            }
+
+                            overCB(isOver);
+                        }, updateInfoCB);
+                        updateInfoCB("Download ABs Over!");
                     }
                     else overCB(false);
 
@@ -75,28 +115,23 @@ public class ABUpdateManager : MonoBehaviour
     /// </summary>
     public async void DownloadABCompareFile(Action<bool> OverCallBack)
     {
-        Debug.Log(Application.persistentDataPath); // 本地可读可写路径
+        // Debug.Log(Application.persistentDataPath); // 本地可读可写路径
 
         bool isOver = false;
         int reDownloadMaxNum = 5; // 最大重试次数
 
-        string path = Application.persistentDataPath + "/ABComparisonInfo_temp.txt";
+        string localPath = Application.persistentDataPath;
         while (!isOver && reDownloadMaxNum > 0)
         {
             await Task.Run(() =>
             {
-                isOver = DownloadFile("ABComparisonInfo.txt", path);
+                isOver = DownloadFile("ABComparisonInfo.txt", localPath + "/ABComparisonInfo_temp.txt");
             });
 
             reDownloadMaxNum--;
         }
 
         OverCallBack?.Invoke(isOver);
-
-        /*if (isOver)
-        {
-            GetRemoteABCompareInfo();
-        }*/
     }
     public void GetRemoteABCompareInfo(string info, Dictionary<string, ABInfo> abInfosDic)
     {
@@ -119,15 +154,17 @@ public class ABUpdateManager : MonoBehaviour
     /// </summary>
     public void GetLocalABCompareFileInfo(Action<bool> overCB)
     {
+        //如果可读可写文件夹中 存在对比文件 说明之前我们已经下载更新过了
         if (File.Exists(Application.persistentDataPath + "/ABComparisonInfo.txt"))
         {
             StartCoroutine(GetLocalABCompareFileInfo(Application.persistentDataPath + "/ABComparisonInfo.txt", overCB));
         }
+        //只有当可读可写中没有对比文件时  才会来加载默认资源（第一次进游戏时才会发生）
         else if (File.Exists(Application.streamingAssetsPath + "/ABComparisonInfo.txt"))
         {
             StartCoroutine(GetLocalABCompareFileInfo(Application.streamingAssetsPath + "/ABComparisonInfo.txt", overCB));
         }
-        else // 第一次进入游戏时
+        else // 第一次进入游戏时 且没有默认资源时
         {
             overCB(true);
         }
@@ -148,12 +185,12 @@ public class ABUpdateManager : MonoBehaviour
     /// <summary>
     /// 下载AB包文件
     /// </summary>
-    public async void DownLoadABFile(Action<bool> overCallBack, Action<int, int> updateProgress)
+    public async void DownLoadABFile(Action<bool> overCallBack, Action<string> updateProgress)
     {
-        foreach (string name in remoteABInfos.Keys)
+        /*foreach (string name in remoteABInfos.Keys)
         {
             downloadList.Add(name);
-        }
+        }*/
 
         // 由于多线程无法读取Unity主进程的资源, 所以需要将下载的AB包存储到本地路径
         string localPath = Application.persistentDataPath + "/";
@@ -179,7 +216,7 @@ public class ABUpdateManager : MonoBehaviour
                     // Debug.Log("Download Progress: " + ++downloadOverNum + "/" + downloadList.Count);
                     // Debug.Log("Download AB File " + downloadList[i] + " Success!");
 
-                    updateProgress(++downloadOverNum, downloadMaxNum);
+                    updateProgress(++downloadOverNum + "/" + downloadMaxNum);
                     tempList.Add(downloadList[i]);
                 }
             }
@@ -202,7 +239,8 @@ public class ABUpdateManager : MonoBehaviour
         {
             // 172.18.3.162
             // 192.168.110.18
-            FtpWebRequest req = FtpWebRequest.Create(new Uri("ftp://172.18.3.162/AB/PC/" + fileName)) as FtpWebRequest;
+            // 192.168.3.39
+            FtpWebRequest req = FtpWebRequest.Create(new Uri("ftp://192.168.3.39/AB/PC/" + fileName)) as FtpWebRequest;
 
             // 设置凭证
             NetworkCredential n = new NetworkCredential("RCrobotcat", "rcrobot123");
