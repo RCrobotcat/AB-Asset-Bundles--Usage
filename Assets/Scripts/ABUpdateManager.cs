@@ -35,10 +35,14 @@ public class ABUpdateManager : MonoBehaviour
     private Dictionary<string, ABInfo> localABInfos = new Dictionary<string, ABInfo>(); // 存储本地AB包信息
 
     /// <summary>
-    /// AB包更新
+    /// AB包热更新
     /// </summary>
     public void CheckUpdate(Action<bool> overCB, Action<string> updateInfoCB)
     {
+        remoteABInfos.Clear();
+        localABInfos.Clear();
+        downloadList.Clear();
+
         updateInfoCB("Updating ABs...");
         DownloadABCompareFile((isOver) =>
         {
