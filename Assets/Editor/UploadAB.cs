@@ -35,7 +35,7 @@ public class UploadAB
         {
             try
             {
-                FtpWebRequest req = FtpWebRequest.Create(new Uri("ftp://192.168.3.39/AB/PC/" + fileName)) as FtpWebRequest;
+                FtpWebRequest req = FtpWebRequest.Create(new Uri("ftp://127.0.0.1/AB/PC/" + fileName)) as FtpWebRequest;
 
                 // …Ë÷√∆æ÷§
                 NetworkCredential n = new NetworkCredential("RCrobotcat", "rcrobot123");
