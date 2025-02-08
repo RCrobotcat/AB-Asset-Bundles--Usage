@@ -6,7 +6,7 @@ using System.Text;
 
 public class CreateABCompare
 {
-    [MenuItem("AB Tools/Create Comparison File")]
+    // [MenuItem("AB Tools/Create Comparison File")]
     public static void CreateABCompareFile()
     {
         DirectoryInfo directory = Directory.CreateDirectory(Application.dataPath + "/Arts/AB/PC/");

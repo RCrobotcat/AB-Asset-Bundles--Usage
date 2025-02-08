@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class UploadAB
 {
-    [MenuItem("AB Tools/Upload AB Files")]
+    // [MenuItem("AB Tools/Upload AB Files")]
     private static void UploadAllABFile()
     {
         DirectoryInfo directory = Directory.CreateDirectory(Application.dataPath + "/Arts/AB/PC/");

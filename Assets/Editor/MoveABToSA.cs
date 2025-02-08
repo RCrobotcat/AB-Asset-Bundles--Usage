@@ -7,7 +7,7 @@ public class MoveABToSA
     /// <summary>
     /// 将选中的AB包移动到StreamingAssets文件夹下
     /// </summary>
-    [MenuItem("AB Tools/Move selected AB To Streaming Assets")]
+    // [MenuItem("AB Tools/Move selected AB To Streaming Assets")]
     private static void MoveABToStreamingAssets()
     {
         Object[] selectedAssets = Selection.GetFiltered(typeof(Object), SelectionMode.DeepAssets);
