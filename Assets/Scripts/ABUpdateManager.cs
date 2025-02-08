@@ -34,6 +34,8 @@ public class ABUpdateManager : MonoBehaviour
 
     private Dictionary<string, ABInfo> localABInfos = new Dictionary<string, ABInfo>(); // 存储本地AB包信息
 
+    public string serverIP = "ftp://127.0.0.1";
+
     /// <summary>
     /// AB包热更新
     /// </summary>
@@ -161,11 +163,19 @@ public class ABUpdateManager : MonoBehaviour
         //如果可读可写文件夹中 存在对比文件 说明之前我们已经下载更新过了
         if (File.Exists(Application.persistentDataPath + "/ABComparisonInfo.txt"))
         {
-            StartCoroutine(GetLocalABCompareFileInfo(Application.persistentDataPath + "/ABComparisonInfo.txt", overCB));
+            // 加 file:/// 是因为在Unity中读取文件时需要加上这个前缀（除了File文件流读取时）
+            StartCoroutine(GetLocalABCompareFileInfo("file:///" + Application.persistentDataPath + "/ABComparisonInfo.txt", overCB));
         }
         //只有当可读可写中没有对比文件时  才会来加载默认资源（第一次进游戏时才会发生）
         else if (File.Exists(Application.streamingAssetsPath + "/ABComparisonInfo.txt"))
         {
+            string path =
+#if UNITY_ANDROID
+Application.streamingAssetsPath;
+#else
+                "file:///" + Application.streamingAssetsPath;
+#endif
+
             StartCoroutine(GetLocalABCompareFileInfo(Application.streamingAssetsPath + "/ABComparisonInfo.txt", overCB));
         }
         else // 第一次进入游戏时 且没有默认资源时
@@ -241,7 +251,16 @@ public class ABUpdateManager : MonoBehaviour
     {
         try
         {
-            FtpWebRequest req = FtpWebRequest.Create(new Uri("ftp://127.0.0.1/AB/PC/" + fileName)) as FtpWebRequest;
+            string platformInfo =
+#if UNITY_IOS
+"IOS";
+#elif UNITY_ANDROID
+"Android";
+#else
+                "PC";
+#endif
+
+            FtpWebRequest req = FtpWebRequest.Create(new Uri(serverIP + "/AB/" + platformInfo + "/" + fileName)) as FtpWebRequest;
 
             // 设置凭证
             NetworkCredential n = new NetworkCredential("RCrobotcat", "rcrobot123");
